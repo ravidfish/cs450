@@ -9,7 +9,7 @@ import weka.core.converters.ConverterUtils.DataSource;
 
 public class Main {
 	public static void main(String[] args) throws Exception {
-		String file = "C:\\FishFiles\\School\\2015\\Spring2015\\cs450\\cs450\\HardCodedClassifier\\files\\iris.csv";
+		String file = "C:\\FishFiles\\School\\2015\\Spring2015\\cs450\\cs450\\files\\iris.csv";
 		DataSource source = new DataSource(file);
 		Instances data = source.getDataSet();
 		data.randomize(new Random());
