@@ -5,68 +5,101 @@
  */
 package knnclassifier;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import static java.lang.Math.abs;
+import static java.lang.Math.pow;
 import java.util.TreeMap;
 import weka.classifiers.Classifier;
 import weka.core.Instances;
 import weka.core.Instance;
-import weka.core.EuclideanDistance;
 
 /**
  *
  * @author Mark
  */
+
 public class KNNClassifier extends Classifier{
 
-    private Instances temp;
-    private EuclideanDistance dist;
+    
+    Integer k = 5;
+    Instances data;
+    TreeMap<Double,Integer> map;
     
     @Override
     public void buildClassifier(Instances i) throws Exception {
-        
-        temp = new Instances(i);
+        data = i;
     }
     
-    /**
-     *
-     * @param testIndex
-     * @return
-     */
     @Override
-    public double classifyInstance(Instance testIndex) {
-	
-        int numNeighbors = 5;
-        int totalInstances = temp.numInstances();
-        List<Double> indexDistances = new ArrayList<>(totalInstances);
-        List<Instance> closestNeighbors = new ArrayList<>(numNeighbors);
-        Map indexDist = new HashMap();
+    public double classifyInstance(Instance instance) throws Exception {
+    
+        createMap(instance);
         
-        for (int i = 0; i < totalInstances; i++) {
+        return classify(instance);
+    }
+    
+    double classify(Instance instance){
+        int tally[] = new int[data.numClasses()];
+        
+        int i = 0;
+        for(Double key : map.keySet()){
+            tally[map.get(key)]++;
+            if (i >= k)
+                break;
+            i++;
+        }
             
-            double tempAdd = dist.distance(temp.instance(i), testIndex);
-            indexDistances.add(tempAdd);           
-            indexDist.put(indexDistances.get(i), temp.instance(i));
-        } 
-        
-        Map<Double, Instance> map = new TreeMap<> (indexDist);
-        
-        for (int j = 0; j < numNeighbors; j++) {
-        
-            closestNeighbors.add(map.get(j));
+        int highestValue = 0;
+        int highestIndex = 0;
+        i = 0;
+        for(int value : tally){          
+
+            if(highestValue < value){
+                highestValue = value;
+                highestIndex = i;
+            }
+            i++;
         }
         
-        System.out.println(closestNeighbors.get(1));
-        System.out.println(closestNeighbors.get(2));
-        System.out.println(closestNeighbors.get(3));
+        System.out.println(highestIndex);
+        return highestIndex;
+    }
+    
+    double EuclideanDistance(Instance instanceLHS, Instance instanceRHS){
+        double distance = 0;
+        for(int i = 0; i < instanceLHS.numAttributes() -1 && i < instanceRHS.numAttributes() - 1 ; i++){
+            if(instanceLHS.attribute(i).isNumeric() && instanceRHS.attribute(i).isNumeric()){
+                distance += pow(instanceLHS.value(i) - instanceRHS.value(i), 2);
+            } else {
+                if(instanceLHS.stringValue(i).equals(instanceRHS.stringValue(i))) {
+                    distance += 0;    
+                }
+                    distance += 5;            
+            }
+        }
         
-            // sort array, grab first "k" which is the numNeighbors, which
-            // should actually be passed in, then determin what there is more
-            // of and assign the testIndex to that.
+        return distance;
+    }
+    
+    void createMap(Instance instance){
+        map = new TreeMap<>();
         
+        for(int i = 0; i < data.numInstances(); i++)
+            map.put(EuclideanDistance(data.instance(i), instance), (int)(data.instance(i).classValue()));
+    }
+    
+    double ManhattenDistance(Instance instanceLHS, Instance instanceRHS){
+        double distance = 0;
+        for(int i = 0; i < instanceLHS.numAttributes() -1 && i < instanceRHS.numAttributes() - 1 ; i++){
+            if(instanceLHS.attribute(i).isNumeric() && instanceRHS.attribute(i).isNumeric()){
+                distance += abs(instanceLHS.value(i) - instanceRHS.value(i));
+            } else{
+                if(instanceLHS.stringValue(i).equals(instanceRHS.stringValue(i))) {
+                    distance = 0;    
+                }
+                    distance += 5;            
+            }
+        }
         
-        return 0;
+        return distance;
     }
 }
