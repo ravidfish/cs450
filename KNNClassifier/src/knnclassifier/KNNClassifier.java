@@ -17,7 +17,7 @@ import weka.core.Instance;
  * @author Mark
  */
 
-public class KNNClassifier extends Classifier{
+public class KNNClassifier extends Classifier {
 
     
     Integer k = 5;
@@ -26,6 +26,7 @@ public class KNNClassifier extends Classifier{
     
     @Override
     public void buildClassifier(Instances i) throws Exception {
+        
         data = i;
     }
     
@@ -37,26 +38,35 @@ public class KNNClassifier extends Classifier{
         return classify(instance);
     }
     
-    double classify(Instance instance){
-        int tally[] = new int[data.numClasses()];
+    double classify(Instance instance) {
         
+        int tally[] = new int[data.numClasses()];
         int i = 0;
-        for(Double key : map.keySet()){
+ 
+        for (Double key : map.keySet()) {
+        
             tally[map.get(key)]++;
-            if (i >= k)
+            
+            if (i >= k) {
+            
                 break;
+            }
+            
             i++;
         }
             
         int highestValue = 0;
         int highestIndex = 0;
         i = 0;
-        for(int value : tally){          
+        
+        for (int value : tally) {          
 
-            if(highestValue < value){
+            if(highestValue < value) {
+
                 highestValue = value;
                 highestIndex = i;
             }
+            
             i++;
         }
         
@@ -64,39 +74,56 @@ public class KNNClassifier extends Classifier{
         return highestIndex;
     }
     
-    double EuclideanDistance(Instance instanceLHS, Instance instanceRHS){
+    double EuclideanDistance(Instance instanceLHS, Instance instanceRHS) {
+       
         double distance = 0;
-        for(int i = 0; i < instanceLHS.numAttributes() -1 && i < instanceRHS.numAttributes() - 1 ; i++){
-            if(instanceLHS.attribute(i).isNumeric() && instanceRHS.attribute(i).isNumeric()){
+        
+        for (int i = 0; i < instanceLHS.numAttributes() -1 && i < instanceRHS.numAttributes() - 1 ; i++) {
+            
+            if (instanceLHS.attribute(i).isNumeric() && instanceRHS.attribute(i).isNumeric()) {
+                
                 distance += pow(instanceLHS.value(i) - instanceRHS.value(i), 2);
             } else {
-                if(instanceLHS.stringValue(i).equals(instanceRHS.stringValue(i))) {
+                
+                if (instanceLHS.stringValue(i).equals(instanceRHS.stringValue(i))) {
+                    
                     distance += 0;    
                 }
-                    distance += 5;            
+                
+                distance += 5;            
             }
         }
         
         return distance;
     }
     
-    void createMap(Instance instance){
+    void createMap(Instance instance) {
+        
         map = new TreeMap<>();
         
-        for(int i = 0; i < data.numInstances(); i++)
+        for (int i = 0; i < data.numInstances(); i++) {
+        
             map.put(EuclideanDistance(data.instance(i), instance), (int)(data.instance(i).classValue()));
+        }
     }
     
-    double ManhattenDistance(Instance instanceLHS, Instance instanceRHS){
+    double ManhattenDistance(Instance instanceLHS, Instance instanceRHS) {
+        
         double distance = 0;
-        for(int i = 0; i < instanceLHS.numAttributes() -1 && i < instanceRHS.numAttributes() - 1 ; i++){
-            if(instanceLHS.attribute(i).isNumeric() && instanceRHS.attribute(i).isNumeric()){
+        
+        for (int i = 0; i < instanceLHS.numAttributes() -1 && i < instanceRHS.numAttributes() - 1 ; i++) {
+            
+            if (instanceLHS.attribute(i).isNumeric() && instanceRHS.attribute(i).isNumeric()) {
+                
                 distance += abs(instanceLHS.value(i) - instanceRHS.value(i));
-            } else{
-                if(instanceLHS.stringValue(i).equals(instanceRHS.stringValue(i))) {
+            } else {
+                
+                if (instanceLHS.stringValue(i).equals(instanceRHS.stringValue(i))) {
+                    
                     distance = 0;    
                 }
-                    distance += 5;            
+                    
+                distance += 5;            
             }
         }
         

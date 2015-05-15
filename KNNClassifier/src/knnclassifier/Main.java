@@ -30,7 +30,6 @@ public class Main {
         dataSet.setClassIndex(dataSet.numAttributes() - 1);
         dataSet.randomize(new Random());
         
-        //determine sizes
         int trainingSize = (int) Math.round(dataSet.numInstances() * .7);
         int testSize = dataSet.numInstances() - trainingSize;
         
