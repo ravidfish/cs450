@@ -24,6 +24,7 @@ public class ID3ClassifierSuper extends Application {
      */
     @Override
     public void start(Stage primaryStage) throws Exception {
+        
         String[] args = null;
         ID3Shells.main(args);
         stop();

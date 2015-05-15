@@ -12,6 +12,7 @@ import weka.core.Attribute;
 import weka.core.Instance;
 import weka.core.Instances;
 import java.util.*;
+import leaf.*;
 import knn.*;
 
 /**
@@ -21,22 +22,28 @@ import knn.*;
 
 public class ID3Classifiers extends Classifier {
 
-    Node tree;
+    Leaf tree;
 
     @Override
     public void buildClassifier(Instances instances) throws Exception {
         
         List<Instance> instanceList = new ArrayList<>(instances.numInstances());
+        
         for (int i = 0; i < instances.numInstances(); i++) {
+        
             instanceList.add(instances.instance(i));
         }
 
         List<Attribute> attributeList = new ArrayList<>(instances.numAttributes());
+        
         for (int i = 0; i < instances.numAttributes(); i++) {
-            if (i != instances.classIndex())
+        
+            if (i != instances.classIndex()) {
+            
                 attributeList.add(instances.attribute(i));
+            }
         }
-
+    
         tree = buildTree(instanceList, attributeList);
         printTree(tree, 0, 0.0);
     }
@@ -76,7 +83,7 @@ public class ID3Classifiers extends Classifier {
         return new Pair<>(true, tmpValue);
     }
 
-    private Node buildTree(List<Instance> instances, List<Attribute> attributes) {
+    private Leaf buildTree(List<Instance> instances, List<Attribute> attributes) {
         
         if (instances.size() < 1) {
             
@@ -87,16 +94,16 @@ public class ID3Classifiers extends Classifier {
         
         if (classification.getKey()) {
             
-            return new Node(classification.getValue());
+            return new Leaf(classification.getValue());
         }
 
         if (attributes.isEmpty()) {
             
-            return new Node(KNNClassifier.getClassification(instances));
+            return new Leaf(KNNClassifier.getClassification(instances));
         }
 
         Attribute largestGain = getMaxGain(instances, attributes);
-        Node n = new Node(instances, largestGain);
+        Leaf node = new Leaf(instances, largestGain);
         Map<Instance, Double> vals =  valuesByAttribute(instances, largestGain);
         Map<Double, Integer> summary = summarizeValues(vals);
         ArrayList<Attribute> newList = new ArrayList<>(attributes);
@@ -104,11 +111,11 @@ public class ID3Classifiers extends Classifier {
         
         for (Double value : summary.keySet()) {
         
-            Node idNode = buildTree(subset(vals, value), newList);
-            n.addChild(value, idNode);
+            Leaf idLeaf = buildTree(subset(vals, value), newList);
+            node.addChild(value, idLeaf);
         }
 
-        return n;
+        return node;
     }
 
     private List<Instance> subset(Map<Instance, Double> map, double value) {
@@ -221,11 +228,11 @@ public class ID3Classifiers extends Classifier {
         return result;
     }
 
-    public void printTree(Node node, int level, Double value) {
+    public void printTree(Leaf theLeaf, int level, Double value) {
         
         if (level == 0) {
             
-            System.out.println(node.attribute.name() + " -");
+            System.out.println(theLeaf.getAttribute().name() + " -");
         } else {
             
             for (int i = 0; i < level; i++) {
@@ -234,42 +241,42 @@ public class ID3Classifiers extends Classifier {
 
             System.out.print(value);
 
-            if (!node.isLeaf()) {
+            if (!theLeaf.isLeaf()) {
                 
-                System.out.print(" : " + node.getAttribute().name());
+                System.out.print(" : " + theLeaf.getAttribute().name());
             }
 
             System.out.print(" -");
 
-            if (node.isLeaf()) {
+            if (theLeaf.isLeaf()) {
                 
-                System.out.println(" " + node.leafValue);
+                System.out.println(" " + theLeaf.getLeafValue());
             } else {
                 
                 System.out.println();
             }
         }
 
-        for (Node n : node.getChildren()) {
+        for (Leaf node : theLeaf.getChildren()) {
             
-            printTree(n, level + 1, node.get(n));
+            printTree(node, level + 1, theLeaf.get(node));
         }
     }
 
-    public double getClassification(Instance instance, Node n) {
+    public double getClassification(Instance instance, Leaf node) {
         
-        if (n.isLeaf()) {
+        if (node.isLeaf()) {
             
-            return n.leafValue;
+            return node.getLeafValue();
         } else {
             
-            Attribute attribute = n.getAttribute();
+            Attribute attribute = node.getAttribute();
             
             if (Double.isNaN(instance.value(attribute))) {
                 
                 Map<Double, Integer> classToCount = new HashMap<>();
                 
-                for (Node child : n.getChildren()) {
+                for (Leaf child : node.getChildren()) {
                 
                     Double value = getClassification(instance, child);
                     
@@ -297,14 +304,14 @@ public class ID3Classifiers extends Classifier {
                 return maxValue;
             } else {
                 
-                Double val = instance.value(n.getAttribute());
+                Double val = instance.value(node.getAttribute());
                 
                 if (val == null || Double.isNaN(val)) {
                 
                     val = 0.0;
                 }
 
-                if (!n.getAttribute().isNominal()) {
+                if (!node.getAttribute().isNominal()) {
                     
                     if (val < 0.5) {
                         
@@ -315,14 +322,14 @@ public class ID3Classifiers extends Classifier {
                     }
                 }
 
-                Node child = n.get(val);
+                Leaf child = node.get(val);
                 
                 if (child == null) {
                  
-                    return KNNClassifier.getClassification(n.instances);
+                    return KNNClassifier.getClassification(node.getInstances());
                 } else {
                     
-                    return getClassification(instance, n.get(val));
+                    return getClassification(instance, node.get(val));
                 }
             }
         }

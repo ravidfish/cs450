@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package id3classifier;
+package leaf;
 
 import java.util.HashMap;
 import java.util.List;
@@ -18,22 +18,22 @@ import weka.core.Instance;
  * @author Mark
  */
 
-class Node {
+public class Leaf {
  
-    List<Instance> instances;
-    private Map<Node, Double> children = new HashMap<>();
-    private Map<Double, Node> children2 = new HashMap<>();
-    Attribute attribute;
-    boolean isLeaf = false;
-    double leafValue;
+    private List<Instance> instances;
+    private Map<Leaf, Double> children = new HashMap<>();
+    private Map<Double, Leaf> children2 = new HashMap<>();
+    private Attribute attribute;
+    private boolean isLeaf = false;
+    private double leafValue;
 
-    public Node(List<Instance> instances, Attribute attribute) {
+    public Leaf(List<Instance> instances, Attribute attribute) {
     
         this.instances = instances;
         this.attribute = attribute;
     }
 
-    public Node(double leafValue) {
+    public Leaf(double leafValue) {
         
         isLeaf = true;
         this.leafValue = leafValue;
@@ -48,24 +48,34 @@ class Node {
         
         return attribute;
     }
+    
+    public double getLeafValue() {
+    
+        return leafValue;
+    }
 
-    public void addChild(Double value, Node n) {
+    public List<Instance> getInstances() {
+        
+        return instances;
+    }
+    
+    public void addChild(Double value, Leaf n) {
         
         children.put(n, value);
         children2.put(value, n);
     }
 
-    public Double get(Node n) {
+    public Double get(Leaf n) {
         
         return children.get(n);
     }
 
-    public Node get(Double d) {
+    public Leaf get(Double d) {
         
         return children2.get(d);
     }
 
-    public Set<Node> getChildren() {
+    public Set<Leaf> getChildren() {
         
         return children.keySet();
     }
