@@ -6,7 +6,7 @@
 
 package id3classifiersuper;
 
-import id3classifier.ID3Shells;
+import id3classifier.Main;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -18,15 +18,17 @@ import javafx.stage.Stage;
 public class ID3ClassifierSuper extends Application {
     
     /**
-     *
      * @param primaryStage
      * @throws java.lang.Exception
      */
     @Override
     public void start(Stage primaryStage) throws Exception {
         
+        // javaFX start function, necessary only because this has to be FX
+        // couldn't import javaFX classes without this being FX for some reason
+        // call the shell's main, and stop when done, so that FX terminates
         String[] args = null;
-        ID3Shells.main(args);
+        Main.main(args);
         stop();
     }
 
@@ -35,6 +37,7 @@ public class ID3ClassifierSuper extends Application {
      */
     public static void main(String[] args) {
         
+        // javaFX launch function, necessary only because this has to be FX
         launch(args);
     }
 }

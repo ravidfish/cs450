@@ -11,7 +11,7 @@
   </resources>
   <resources>
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
-    <jar href="ID3ClassifierSuper.jar" size="27883" download="eager" />
+    <jar href="ID3ClassifierSuper.jar" size="27587" download="eager" />
     <jar href="lib/weka-src.jar" size="6790032" download="eager" />
     <jar href="lib/weka.jar" size="6555904" download="eager" />
   </resources>
