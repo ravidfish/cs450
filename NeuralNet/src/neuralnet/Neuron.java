@@ -77,19 +77,6 @@ public class Neuron {
 		return error;
 	}
 	
-	public void updateWeights(ArrayList<Double> inputs) {
-		if (!bias_neuron) {
-			int size = inputs.size();
-	
-			//System.err.println("Size of 'weights': " + weights.size());
-			for (int i = 0; i < size; ++i) {
-				//System.err.println("Index: " + i);
-				Double weight = weights.get(i);
-				weights.set(i, weight - (n_const * error * inputs.get(i)));
-			}
-		}
-	}
-	
 	public boolean is_bias() {
 		return bias_neuron;
 	}
@@ -98,6 +85,19 @@ public class Neuron {
 		for (int i = 0; i < length; ++i) {
 			weights.add(((Math.random() * 2) - 1) / length);
 		}
+	}
+        
+        public void updateWeights(ArrayList<Double> inputs) {
+            if (!bias_neuron) {
+		int size = inputs.size();
+	
+                //System.err.println("Size of 'weights': " + weights.size());
+		for (int i = 0; i < size; ++i) {
+                    //System.err.println("Index: " + i);
+                    Double weight = weights.get(i);
+                    weights.set(i, weight - (n_const * error * inputs.get(i)));
+		}
+            }
 	}
 	
 	private void outputLayerError(boolean correct_output) {

@@ -74,7 +74,7 @@ public class NeuralNetwork {
 		return inputs.indexOf(max_value);
 	}
 	
-	public void backPropagate() {
+	public void back_Propagate() {
 		boolean output_layer = true;
 		ArrayList<ArrayList<Double>> errors = new ArrayList<ArrayList<Double>>();
 		for (int i = layers.size(); i > 0; --i) {
@@ -108,11 +108,11 @@ public class NeuralNetwork {
 		}
 	}
 	
+        public boolean classificationValidation(Instance i, Double class_index) {
+        	return (i.classValue() == class_index);
+	}
+        
 	public boolean classificationValidation(Double class_index) {
 		return this.classificationValidation(instance, class_index);
-	}
-	
-	public boolean classificationValidation(Instance i, Double class_index) {
-		return (i.classValue() == class_index);
 	}
 }

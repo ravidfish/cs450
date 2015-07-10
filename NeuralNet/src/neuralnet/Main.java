@@ -18,14 +18,13 @@ import weka.filters.unsupervised.instance.RemovePercentage;
 
 public class Main {
 	
-	private static int runs = 1000;
+	private static int duration = 1000;
 	private static ArrayList<Integer> layers = new ArrayList<Integer>(Arrays.asList(5,3)); 
 	
 	public static void main(String[] args) throws Exception {
 		String file="lib/iris.csv";
 		DataSource source = new DataSource(file);
 		Instances data = source.getDataSet();
-		
 		data.randomize(new Random());
 		
 		RemovePercentage filter = new RemovePercentage();
@@ -47,13 +46,12 @@ public class Main {
 		
 		// Make the last attribute be the class
 		test.setClassIndex(test.numAttributes() - 1);
-		
 		NeuralNetwork nn = new NeuralNetwork(layers);
 		
-		for (int i = 0; i < runs; ++i) {
+		for (int i = 0; i < duration; ++i) {
 			for (int j = 0; j < training_size; ++j) {
 				nn.evaluate(training.instance(j));
-				nn.backPropagate();
+				nn.back_Propagate();
 			}
 		}
 		
