@@ -1,123 +1,151 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package neuralnet;
 
 import java.util.ArrayList;
-
+import java.util.List;
 
 public class Neuron {
-
-	static Double n_const = 0.9;
-	ArrayList<Double> weights = new ArrayList<Double>();
-	Double activation_value;
-	Double h_value;
-	Double error;
-	boolean bias_neuron;
-	
-	public Neuron() {
-		this.init(false);
-	}
-	
-	public Neuron(boolean bias) {
-		this.init(bias);
-	}
-	
-	public void init(boolean bias) {
-		bias_neuron = bias;
-	}
-	
-	public Double evaluate(ArrayList<Double> inputs) {
-		Double result = 0.0;
-		if (!bias_neuron) {
-			
-			int length = inputs.size();
-			
-			if (this.weights.size() == 0) {
-				//System.err.println("Creating Weights array or length " + length);
-				this.initWeights(length);
-			}
-			
-			for (int i = 0; i < length; ++i) {
-				result += weights.get(i) * inputs.get(i);
-			}
-			
-			h_value = result;
-			result = 1 / (1 + Math.pow(Math.E, -result));
-		} else {
-			// Bias Neurons always have an activation value of -1
-			result = -1.0;
-		}
-		
-		activation_value = result;
-		//System.err.println("Result: " + result);
-		
-		return result;
-	}
-	
-	public Double getWeightByIndex(int i) {
-		return weights.get(i);
-	}
-	
-	public Double getError() {
-		return error;
-	}
-	
-	public Double getError(boolean output_layer, int index, ArrayList<Neuron> next_layer, boolean correct_output) {
-		
-		if (output_layer) {
-			this.outputLayerError(correct_output);
-		} else {
-			this.hiddenLayerError(index, next_layer);
-		}
-		
-		return error;
-	}
-	
-	public boolean is_bias() {
-		return bias_neuron;
-	}
-	
-	private void initWeights(int length) {
-		for (int i = 0; i < length; ++i) {
-			weights.add(((Math.random() * 2) - 1) / length);
-		}
-	}
+    
+    private List<Double> weights = new ArrayList<>();
+    private List<Double> newWeights = new ArrayList <>();
+    private List<Neuron> nextNeurons = new ArrayList <>();
+    private List<Neuron> prevNeurons = new ArrayList <>();
+    private Double value = 0.0;
+    double learningRate = 0;
+    double nueronError = 0;
+    
+    public Neuron(double learningRate) {
         
-        public void updateWeights(ArrayList<Double> inputs) {
-            if (!bias_neuron) {
-		int size = inputs.size();
-	
-                //System.err.println("Size of 'weights': " + weights.size());
-		for (int i = 0; i < size; ++i) {
-                    //System.err.println("Index: " + i);
-                    Double weight = weights.get(i);
-                    weights.set(i, weight - (n_const * error * inputs.get(i)));
-		}
+        this.learningRate = learningRate;
+    }
+        
+    public double getError() {
+        
+        return nueronError;
+    }
+    
+    public void setValue(Double value) {
+       
+        this.value = value;
+    }
+    
+    public Double getValue() {
+        
+        return value;
+    }
+        
+    public void connectNextNodes(List<Neuron> neurons) {
+        
+        nextNeurons = neurons;
+    }
+    
+    public void connectPrevNodes(List<Neuron> neurons) {
+        
+        prevNeurons = neurons;
+    }
+
+    public void initializeWeights() {
+        
+        for (int i = 0; i < prevNeurons.size(); i++) {
+            
+            Double weight = Math.random() - Math.random();
+            newWeights.add(weight);
+            weights.add(weight);
+        }
+    }
+    
+    public void updateWeights() {
+        
+        weights = newWeights;
+        newWeights = new ArrayList<>(weights);
+    }
+        
+    public void forwardPropagate() {
+        
+        double propagateValue = 0;
+        
+        for (int i =0; i < weights.size(); i++) {
+            
+            propagateValue += prevNeurons.get(i).getValue() * weights.get(i);
+        }
+        
+        value = 1 / ( 1 + Math.exp(-propagateValue));
+    }
+    
+    public void backwardPropagateOutput(boolean correct) {
+        
+        int correctValue;
+       
+        if (correct) {
+            
+            correctValue = 1;
+        } else {
+            
+            correctValue = 0;
+        }
+        
+        nueronError = value * (1-value) * (value - correctValue);
+        
+        for (int i = 0; i < weights.size(); i++) {
+         
+            updateWeight(i, nueronError);
+        }
+    }
+    
+    public double getWeightOfNode(Neuron neuron) {
+        
+        int neuronIndex = -1;
+        
+        for (int i = 0; i < prevNeurons.size(); i++) {
+            
+            if (prevNeurons.get(i) == neuron) {
+                neuronIndex = i;
             }
-	}
-	
-	private void outputLayerError(boolean correct_output) {
-		error = activation_value * (1 - activation_value) * (activation_value - ((correct_output) ? 1 : 0));
-	}
-	
-	private void hiddenLayerError(int index, ArrayList<Neuron> next_layer) {
-		if (!bias_neuron) {
-		Double sum_of_weighted_errors = 0.0;
-			int size = next_layer.size();
-			for (int i = 0; i < size; ++i) {
-				Neuron n = next_layer.get(i);
-				if (!n.is_bias()) {
-					Double weight = n.getWeightByIndex(index);
-					Double error = n.getError();
-					sum_of_weighted_errors += weight * error;
-				}
-			}
-			
-			error = activation_value * (1 - activation_value) * sum_of_weighted_errors;
-		}
-	}
+        }
+
+        return weights.get(neuronIndex);
+    }
+    
+    public void backwardPropagate() {
+        nueronError = 0;
+        
+        for (int i = 0; i < nextNeurons.size(); i++) {
+            
+            nueronError += nextNeurons.get(i).getWeightOfNode(this) * nextNeurons.get(i).getError(); 
+        }
+               
+        nueronError *= (value * (1-value));
+    }
+    
+    private void updateWeight(int weightIndex, double error) {
+        
+        newWeights.set(weightIndex, weights.get(weightIndex) - learningRate * error * prevNeurons.get(weightIndex).value);  
+    }
+    
+    public void print(){
+        
+        System.out.println("");
+        System.out.println("value : " + value);
+        System.out.println("Error : " + nueronError);
+        
+        System.out.println("num of prev nodes : " + prevNeurons.size());
+        System.out.println("num of Next nodes : " + nextNeurons.size());
+        
+        for(int i = 0; i < weights.size(); i++) {
+            System.out.println("weight " + i + " : " + weights.get(i));
+        }
+        
+        for(int i = 0; i < newWeights.size(); i++) {
+            System.out.println("New weights " + i + " : " + newWeights.get(i));
+        }
+                
+        for(int i = 0; i < prevNeurons.size(); i++) {
+            System.out.println("Prev Nueron " + i + " : " + prevNeurons.get(i).getValue());
+        }
+        
+        for(int i = 0; i < nextNeurons.size(); i++) {
+            System.out.println("Next Nueron " + i + " : " + nextNeurons.get(i).getValue());
+        }
+                
+        System.out.println("");
+    }
 }
