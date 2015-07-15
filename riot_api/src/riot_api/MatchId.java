@@ -33,10 +33,10 @@ import java.io.UnsupportedEncodingException;
 public class MatchId extends RestRequest {
 
   // class variables 
-  private String matchId; // optional
+  private Integer matchId; // optional
   private String api_key; // optional 
   private String region;
-
+  
   /**
    * constructor with 0 argument(s)
    * 
@@ -52,7 +52,7 @@ public class MatchId extends RestRequest {
    * 
    * @param matchId
    */ 
-  public MatchId(String matchId) { 
+  public MatchId(Integer matchId) { 
 
     // assign class variables 
     this.matchId = matchId;
@@ -65,7 +65,7 @@ public class MatchId extends RestRequest {
    * @param matchId
    * @param api_key
    */ 
-  public MatchId(String matchId, String api_key) { 
+  public MatchId(Integer matchId, String api_key) { 
 
     // assign class variables 
     this.matchId = matchId;
@@ -77,9 +77,9 @@ public class MatchId extends RestRequest {
   /**
    * @return the String representation of the matchId
    */
-  public String getMatchId() {
-    if ((matchId + "").equals("null")) return "";
-    return ((Object) matchId).toString();
+  public Integer getMatchId() {
+    if ((matchId + "").equals("null")) return null;
+    return matchId;
   }
 
    /**
@@ -103,7 +103,7 @@ public class MatchId extends RestRequest {
    * @param matchId the matchId to set
    * @return the instance of the class (this) 
    */
-  public MatchId setMatchId(String matchId) {
+  public MatchId setMatchId(Integer matchId) {
     this.matchId = matchId;
     return this;
   }
@@ -147,14 +147,23 @@ public class MatchId extends RestRequest {
 
   } 
 
+  private int getAndIncrement() {
+      return this.matchId++;
+  }
+  
   // submits the request 
-  public String submit() { 
+  public String getNextMatch() { 
 
     //created the getRegion function, we were going to hardcode this.
-    String region = this.getRegion();
-    String matchId = this.getMatchId();
-    String requestUri = "https://na.api.pvp.net/api/lol/" + region + "/v2.2/match/" + matchId;
-    String response = this.doGetCall(requestUri + "?" + this.prepareParams()); 
+    //String region = this.getRegion();
+    Integer matchId = this.getAndIncrement();
+    String requestUri = "https://na.api.pvp.net/api/lol/" + "na" + "/v2.2/match/" + matchId;
+    //String requestUri = "https://na.api.pvp.net/api/lol/" + "na" + "/v2.2/match/" + "1885303956";
+    //String prepareParams = this.prepareParams();
+    String api_key = "963af6ad-7ae0-4ec5-868d-df1b880bac8d";
+    //String response = this.doGetCall(requestUri + "?" + this.prepareParams()); 
+    String uri = requestUri + "?api_key=" + api_key;
+     String response = this.doGetCall(uri); 
     return response; 
 
   } 
