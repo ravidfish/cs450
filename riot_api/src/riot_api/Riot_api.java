@@ -28,7 +28,7 @@ import java.io.FileWriter;
 public class Riot_api {
 
     private static int count = 0;
-    private static final int limit = 3000;
+    private static final int limit = 1000;
     private static final int mId = 1885303956;
     private static final int sleep_timer = 1250;
     /**
