@@ -30,7 +30,7 @@ public class Riot_api {
     private static int count = 0;
     private static final int limit = 3000;
     private static final int mId = 1885303956;
-    private static final int sleep_timer = 1000;
+    private static final int sleep_timer = 1250;
     /**
      * @param args the command line arguments
      */
@@ -64,10 +64,10 @@ public class Riot_api {
     public static void parseMatchInfo(String json) {
         String output = "";
         JsonObject obj = new JsonParser().parse(json).getAsJsonObject();
-        if (obj.get("queueType").toString().replace("\"", "").equals("NORMAL_3x3") ||
+        if (!(obj.get("queueType").toString().replace("\"", "").equals("NORMAL_3x3") ||
             obj.get("queueType").toString().replace("\"", "").equals("NORMAL_5x5_BLIND") ||
             obj.get("queueType").toString().replace("\"", "").equals("NORMAL_5x5_DRAFT") ||
-            obj.get("queueType").toString().replace("\"", "").equals("RANKED_SOLO_5x5")) {
+            obj.get("queueType").toString().replace("\"", "").equals("RANKED_SOLO_5x5"))) {
             return;
         }
         
